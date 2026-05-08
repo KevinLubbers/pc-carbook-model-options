@@ -27,6 +27,12 @@ def header_to_category(header):
         case _:
             return 
 
+#automation will not crash if N/A or W/A is found in a location where a $ value is expected
+def safe_float(value):
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return 0.0
 
 # Connect to the database
 conn = sqlite3.connect(DB_URL)
@@ -128,9 +134,9 @@ def run():
                             #added [2:] to remove the first 2 digits of the model code for Hyundai(PCS has a limit of 10)
                             model_code = row_data[0][2:]
                             option_name = None
-                            insert_tuple = (year, division, full_model_name, model_code, "*MDL", option_name, None, float(row_data[2]), float(row_data[3]))
+                            insert_tuple = (year, division, full_model_name, model_code, "*MDL", option_name, None, safe_float(row_data[2]), safe_float(row_data[3]))
                             data.append(insert_tuple)
-                            insert_tuple = (year, division, full_model_name, model_code, "DFRT", option_name, None, float(row_data[4]), float(row_data[4]))
+                            insert_tuple = (year, division, full_model_name, model_code, "DFRT", option_name, None, safe_float(row_data[4]), safe_float(row_data[4]))
                             data.append(insert_tuple)
                             #end *MDL and DFRT
                             #start enter model options
@@ -138,11 +144,15 @@ def run():
                             time.sleep(1)
                             page.wait_for_selector('#select-new-vehicle-button')
                             page.click('#select-new-vehicle-button')
-                            time.sleep(2)
+                            time.sleep(3)
                             #add an enter key press maybe to account for random compatibility pop ups? shouldn't cause any issue if no pop up
                             #end dynamic menu selection, starting data extraction
                             option_table = page.query_selector_all("tr.subheader, tr.dataRow")
                             current_header = ""
+                            try:
+                                page.locator("div.button-up >> text=OK").click(timeout=1000)
+                            except:
+                                pass
                             for option in option_table:
                                 is_subheader = option.evaluate("el => el.classList.contains('subheader')")
                                 is_data = option.evaluate("el => el.classList.contains('dataRow')")
@@ -160,7 +170,8 @@ def run():
                                         if row_data[2].rstrip().count('(') < row_data[2].rstrip().count(')')
                                         else row_data[2].rstrip()
                                     )
-                                    insert_tuple = (year, division, full_model_name, model_code, row_data[1], row_data[2], current_header, float(row_data[4]), float(row_data[5]))
+                                    row_data[2] = row_data[2].replace('(PIO)', '(Port Installed)')
+                                    insert_tuple = (year, division, full_model_name, model_code, row_data[1], row_data[2], current_header, safe_float(row_data[4]), safe_float(row_data[5]))
                                     print(insert_tuple)
                                     data.append(insert_tuple)
                             #wait 25 seconds per model before moving to the next then reopen the dynamic menu and start the loop over again
