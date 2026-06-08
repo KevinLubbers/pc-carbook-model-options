@@ -2,7 +2,7 @@
 
 A Python tool to scrape car data from a specific website and organize it in a SQLite database for later analysis and comparison.
 
-Runtime of 2m 29s
+Runtime varies based on selected Manufacturer.
 
 ## Features
 
@@ -10,9 +10,9 @@ Logs into a website using credentials stored in environment variables.
 
 Navigates the car selection interface by division, year, and model.
 
-Extracts pricing and model data, including invoice price, MSRP, and cost of delivery (DFRT).
+Extracts pricing for all options in all models of the selected Manufacturer. Includes base price and cost of delivery.
 
-Supports filtering for specific divisions, e.g., Toyota, Honda, Chevy Cars, and Chevy Utility Vehicles.
+Requires changes to the code to set up other Manufacturers. Currently only set up for Hyundai.
 
 Stores structured data in a SQLite database for easy querying and analysis.
 
@@ -20,7 +20,7 @@ Stores structured data in a SQLite database for easy querying and analysis.
 
 Clone the repository
 ```
-clone https://github.com/KevinLubbers/pc-carbook-playwright.git
+clone https://github.com/KevinLubbers/pc-carbook-model-options.git
 ```
 
 Install dependencies:
@@ -57,19 +57,19 @@ The scraper will:
 
 ## Database Schema
 
-Table: mdl_dfrt_check
+### Table: Model Option Pricing
 
 | Column | Type | Description |
 | -------| -----| ----------- |
-| id |	INTEGER |	Primary key |
-| model_year |	INTEGER | Year of the model |
-| division | TEXT | Car division (e.g., Toyota) |
+|id |	INTEGER |	Primary key |
+|model_year |	INTEGER | Year of the model |
+|division | TEXT | Car division (e.g., Toyota) |
 |model | TEXT |	Model name |
 |model_code | TEXT |	Model code from the website |
-|style_name | TEXT |	Style/trim name |
+|option_code | TEXT |	3-4 digit Manufacturer identifier |
+|option_category | TEXT | Type of option - groups of commons(paints, equipment, interior, etc)
 |invoice_price | REAL |	Invoice price |
 |msrp_price | REAL |	MSRP price |
-|dfrt_price | REAL |	Delivery price |
 |scrape_date | TEXT |	Timestamp of data scraping |
 
 ### Notes
