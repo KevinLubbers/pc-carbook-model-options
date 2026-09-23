@@ -77,7 +77,8 @@ def run():
 
         #loop through hard-coded division list. no need to scrape all divisions
         division_list = ['Hyundai']
-        year_list = ['2026']
+        model_list = ['IONIQ 5', 'Sonata', 'Sonata Hybrid']
+        year_list = ['2027']
         data = []
         for each_year in year_list:
             page.select_option('.component-selector-year-input', label=each_year)
@@ -97,7 +98,11 @@ def run():
                 models = page.eval_on_selector_all(".component-selector-model-input option", "options => options.slice(1).map(option=> option.textContent)")
                 #loop through all models found
                 #add models[:x] to only loop through to the xth model
-                for model in models:
+                #for model in models:
+                #use above line to loop through all models instead of a named list
+                for model in model_list:
+                    if model not in models:
+                        continue
                     page.select_option('.component-selector-model-input', label=model)
                     time.sleep(2)
                     #get dynamically generated table data after selecting model
